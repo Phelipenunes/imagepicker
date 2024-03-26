@@ -3,6 +3,7 @@ import { Button, StyleSheet, Text, View, Image } from "react-native";
 import { useState, useEffect } from "react";
 import * as ImagePicker from "expo-image-picker";
 import * as MediaLibrary from "expo-media-library";
+import * as Sharing from "expo-sharing";
 
 export default function App() {
   const [foto, setFoto] = useState(null);
@@ -26,7 +27,7 @@ export default function App() {
       quality: 1,
     });
 
-    if (!resultado.canceled) {
+    if (!resultado.cancelled) {
       setFoto(resultado.assets[0].uri);
     }
   };
@@ -37,9 +38,21 @@ export default function App() {
       aspect: [4, 3],
       quality: 1,
     });
-    if (!imagem.canceled) {
-      await MediaLibrary.saveToLibraryAsync(image.assets[0].uri);
+    if (!imagem.cancelled) {
+      await MediaLibrary.saveToLibraryAsync(imagem.assets[0].uri);
       setFoto(imagem.assets[0].uri);
+    }
+  };
+
+  const compartilhar = async () => {
+    try {
+      if (foto) {
+        await Sharing.shareAsync(foto);
+      } else {
+        alert("Você precisa escolher uma foto antes de compartilhar!");
+      }
+    } catch (error) {
+      console.log("Erro ao compartilhar:", error.message);
     }
   };
 
@@ -54,6 +67,7 @@ export default function App() {
         ) : (
           <Text>Você ainda não escolheu uma foto!</Text>
         )}
+        <Button onPress={compartilhar} title="Compartilhar" />
       </View>
     </>
   );
